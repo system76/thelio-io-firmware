@@ -69,7 +69,35 @@ Command: `DUTY`
 Data: `CPUF2710`
 Return: `\r\nOK\r\n`
 
-Set the duty of device `CPUF` to `10000`, which is 100%.
+Set the duty of device `CPUF` to `10000`, which is 100%. The data must be a hex
+encoded value from `0000` to `2710`.
 
 If the device is not found, or the value is above `2710` in hex, `ERROR` will be
 returned.
+
+
+## Suspend State (Get)
+
+`IoSUSP\r`
+
+Command: `SUSP`
+Data: ``
+Return: `\r\n0001\r\n\r\nOK\r\n`
+
+Get the suspend state of the device. This will return a hex encoded suspend
+state. Currently the only values supported are `0000` and `0001`.
+
+Errors should not occur, but must be handled in case of a firmware modification.
+
+## Power State (Set)
+
+`IoSUSP0001\r`
+
+Command: `SUSP`
+Data: `0001`
+Return: `\r\nOK\r\n`
+
+Set the suspend state of the device. The data must be a hex encoded value.
+Currently the only values supported are `0000` and `0001`.
+
+If the value is above `0001` in hex, `ERROR` will be returned.

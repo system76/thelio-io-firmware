@@ -42,6 +42,7 @@ struct Thelio {
     struct Config config;
     // Variables
     enum PowerBtnState powerbtn_state;
+    uint16_t suspend_state;
     // Timers
     struct Timer * timer_1;
     struct Timer * timer_3;
@@ -72,7 +73,7 @@ static void thelio_powerbtn_callback(struct Device * device, uint64_t time, void
             motherbtn = 1;
             if (!pin_get(thelio->motherled)) {
                 powerbtn_state = POWERBTN_ON;
-            } else if (USBtoSerial_Suspended()) {
+            } else if (thelio->suspend_state) {
                 powerbtn_state = POWERBTN_SUSPEND;
             } else {
                 powerbtn_state = POWERBTN_OFF;
@@ -120,6 +121,7 @@ uint8_t thelio_new(struct Thelio * thelio) {
     config_load(&thelio->config);
 
     thelio->powerbtn_state = POWERBTN_OFF;
+    thelio->suspend_state = 0;
 
     // Allocate timers
     #define GETTIMER(N) \
@@ -263,6 +265,20 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
                     }
 
                     break;
+                }
+            }
+        } else if (strncmp(command + 2, "SUSP", 4) == 0) {
+            if (strlen(command + 6) == 0) {
+                fprintf(output, "\r\n%04X\r\n", thelio->suspend_state);
+
+                error = 0;
+            } else {
+                errno = 0;
+                unsigned long suspend_state = strtoul(command + 6, NULL, 16);
+                if (errno == 0 && suspend_state <= 1) {
+                    thelio->suspend_state = suspend_state;
+
+                    error = 0;
                 }
             }
         }
