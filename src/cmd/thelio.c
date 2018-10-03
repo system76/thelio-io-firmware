@@ -50,6 +50,7 @@ struct Thelio {
     // Pins
     struct Pin * motherled;
     struct Pin * motherbtn;
+    struct Pin * cpufanmux;
     // Devices
     struct Device powerbtn;
     struct Device cpufan;
@@ -148,17 +149,19 @@ uint8_t thelio_new(struct Thelio * thelio) {
         }
 
     {
-        GETPIN(PF0);
-        GETPIN(PB4);
+        GETPIN(PF0); // ADC0
+        GETPIN(PB4); // PB4
+        GETPIN(PE6); // PE6
         thelio->motherled = pin_PF0;
         thelio->motherbtn = pin_PB4;
+        thelio->cpufanmux = pin_PE6;
     }
 
     int device_i = 0;
 
     {
-        GETPIN(PF1);
-        GETPIN(PC7);
+        GETPIN(PF1); // ADC1
+        GETPIN(PC7); // OC4A
         thelio->powerbtn = device_new(
             "POWB",
             pin_PF1, pin_PC7,
@@ -170,8 +173,8 @@ uint8_t thelio_new(struct Thelio * thelio) {
     }
 
     {
-        GETPIN(PF4);
-        GETPIN(PB5);
+        GETPIN(PF4); // ADC4
+        GETPIN(PB5); // OC1A
         thelio->cpufan = device_new(
             "CPUF",
             pin_PF4, pin_PB5,
@@ -183,8 +186,8 @@ uint8_t thelio_new(struct Thelio * thelio) {
     }
 
     {
-        GETPIN(PF5);
-        GETPIN(PB6);
+        GETPIN(PF5); // ADC5
+        GETPIN(PB6); // OC1B
         thelio->intakefan = device_new(
             "INTF",
             pin_PF5, pin_PB6,
@@ -195,8 +198,8 @@ uint8_t thelio_new(struct Thelio * thelio) {
     }
 
     {
-        GETPIN(PF6);
-        GETPIN(PC6);
+        GETPIN(PF6); // ADC6
+        GETPIN(PC6); // OC3A
         thelio->exhaustfan = device_new(
             "EXHF",
             pin_PF6, pin_PC6,
@@ -220,6 +223,8 @@ void thelio_init(struct Thelio * thelio) {
     pin_set(thelio->motherled, 0);
     pin_set_dir(thelio->motherbtn, 1);
     pin_set(thelio->motherbtn, 0);
+    pin_set_dir(thelio->cpufanmux, 1);
+    pin_set(thelio->cpufanmux, 0);
 
     // Initialize devices
     for (int i = 0; i < sizeof(thelio->devices)/sizeof(struct Device *); i++) {
@@ -308,6 +313,8 @@ void thelio_destroy(struct Thelio * thelio) {
     pin_set(thelio->motherled, 0);
     pin_set_dir(thelio->motherbtn, 0);
     pin_set(thelio->motherbtn, 0);
+    pin_set_dir(thelio->cpufanmux, 0);
+    pin_set(thelio->cpufanmux, 0);
 
     // Reset timers
     timer_init(thelio->timer_1);
