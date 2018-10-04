@@ -338,7 +338,7 @@ int cmd_thelio(int argc, char ** argv) {
     memset(usb_cmd, 0, sizeof(usb_cmd)/sizeof(char));
     usb_cmd_i = 0;
 
-    printf("Running Thelio driver. Press CTRL-C to exit\n");
+    printf("running thelio\n");
 
     thelio_init(&thelio);
 
@@ -388,7 +388,7 @@ int cmd_thelio(int argc, char ** argv) {
 
     thelio_destroy(&thelio);
 
-    printf("Exiting Thelio driver\n");
+    printf("exiting thelio\n");
 
     return 0;
 }
