@@ -286,6 +286,11 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
                     error = 0;
                 }
             }
+        } else if (strncmp(command + 2, "RSET", 4) == 0) {
+            thelio->powerbtn_state = POWERBTN_ON;
+            thelio->suspend_state = 0;
+
+            error = 0;
         }
     }
 
@@ -371,12 +376,12 @@ int cmd_thelio(int argc, char ** argv) {
             }
         }
 
-        if (uart_can_read(stdio_uart)) {
-            char c = uart_read(stdio_uart);
-            if (c == 3) {
-                break;
-            }
-        }
+        // if (uart_can_read(stdio_uart)) {
+        //     char c = uart_read(stdio_uart);
+        //     if (c == 3) {
+        //         break;
+        //     }
+        // }
     }
 
     USBtoSerial_Destroy();
