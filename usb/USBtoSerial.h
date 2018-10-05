@@ -35,7 +35,6 @@
 	void USBtoSerial_Init(void);
 	int16_t USBtoSerial_Read(void);
 	uint8_t USBtoSerial_Write(uint8_t byte);
-	uint8_t USBtoSerial_Suspended(void);
 	void USBtoSerial_Task(void);
 	void USBtoSerial_Destroy(void);
 #endif

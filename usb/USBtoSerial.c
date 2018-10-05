@@ -90,10 +90,6 @@ uint8_t USBtoSerial_Write(uint8_t byte) {
 	return CDC_Device_SendByte(&VirtualSerial_CDC_Interface, byte);
 }
 
-uint8_t USBtoSerial_Suspended(void) {
-	return USB_DeviceState == DEVICE_STATE_Suspended;
-}
-
 void USBtoSerial_Task(void) {
 	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 	USB_USBTask();
