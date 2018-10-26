@@ -102,6 +102,8 @@ uint8_t i2c_read_nack() {
 }
 
 uint8_t i2c_recv(uint8_t address, uint8_t* data, uint16_t length) {
+	if (length == 0) return 0;
+
 	if (i2c_start(address, I2C_READ)) return 1;
 
 	uint16_t i;
@@ -130,6 +132,8 @@ uint8_t i2c_send(uint8_t address, uint8_t* data, uint16_t length) {
 }
 
 uint8_t i2c_get(uint8_t address, uint8_t reg, uint8_t* data, uint16_t length) {
+	if (length == 0) return 0;
+
 	if (i2c_start(address, I2C_WRITE)) return 1;
 
 	if (i2c_write(reg)) return 1;
