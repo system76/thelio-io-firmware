@@ -25,7 +25,9 @@
     /* On setting of power LED in 0..10000 */ \
     CFG_16(powerbtn_on, 3500) \
     /* Pressed setting of power LED in 0..10000 */ \
-    CFG_16(powerbtn_pressed, 10000)
+    CFG_16(powerbtn_pressed, 10000) \
+    /* CPU Fan timeout to return to motherboard control in us */ \
+    CFG_32(cpufan_timeout, 10000000)
 
 #undef CFG_16
 #define CFG_16(N, V) uint16_t N;
