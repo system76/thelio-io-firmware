@@ -32,7 +32,7 @@ icsp: $(BUILD)/boot.hex
 		-p $(DEVICE) \
 		-U flash:w:$<:i\
 		-U lfuse:w:0xFF:m \
-		-U hfuse:w:0xD8:m \
+		-U hfuse:w:0xD9:m \
 		-U efuse:w:0xCB:m
 
 stack: $(BUILD)/main.elf

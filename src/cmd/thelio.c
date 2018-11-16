@@ -416,17 +416,7 @@ int cmd_thelio(int argc, char ** argv) {
 
     printf("exiting thelio\n");
 
-    // Disable all interrupts
-    cli();
-
-    // Wait two seconds for the USB detachment to register on the host
-    _delay_ms(2000);
-
-    // Reset using watchdog
-    wdt_enable(WDTO_250MS);
-
-    // Wait for watchdog
-    for (;;);
+    USBtoSerial_Bootloader();
 
     return 0;
 }

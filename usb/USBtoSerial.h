@@ -32,6 +32,8 @@
 #define _USB_SERIAL_H_
 	#include <stdint.h>
 
+	void USBtoSerial_Bootloader(void);
+
 	void USBtoSerial_Init(void);
 	int16_t USBtoSerial_Read(void);
 	uint8_t USBtoSerial_Write(uint8_t byte);
