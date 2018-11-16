@@ -236,7 +236,7 @@ void thelio_init(struct Thelio * thelio) {
 
     // Initialize pins
     pin_set_dir(thelio->motherled, 0);
-    pin_set(thelio->motherled, 0);
+    pin_set(thelio->motherled, 1);
     pin_set_dir(thelio->motherbtn, 1);
     pin_set(thelio->motherbtn, 0);
     pin_set_dir(thelio->cpufanmux, 1);
