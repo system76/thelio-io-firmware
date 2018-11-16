@@ -13,7 +13,7 @@
 
 MCU          = atmega32u4
 ARCH         = AVR8
-BOARD        = NONE # Would be MICRO but then the bootloader does not fit into 4 KB
+BOARD        = NONE
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s

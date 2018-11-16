@@ -7,33 +7,42 @@ include mk/$(DEVICE).mk
 BUILD=build/$(DEVICE)
 CFLAGS=-Os -fstack-usage -Wall -Wl,--gc-sections -Wl,-u,vfprintf -lprintf_flt -D __DEVICE__=$(DEVICE) -mmcu=$(DEVICE)
 
-.PHONY: all clean console icsp stack upload
+.PHONY: all clean console dfu icsp stack
 
-all: $(BUILD)/main.hex
+all: $(BUILD)/boot.hex $(BUILD)/main.hex
+
+# old CDC flashing method:
+#sudo avrdude -v -v -p $(DEVICE) -c $(PROGRAMMER) -P $(PORT) -b $(PROGRAMMER_BAUD) -D -U flash:w:$<:i
 
 clean:
 	rm -rf $(BUILD)
+	make -C bootloader clean
+	make -C usb clean
 
 console:
 	sudo tio $(PORT) -b $(CONSOLE_BAUD)
 
-icsp: $(BUILD)/main.hex
-	sudo avrdude -v -v -p $(DEVICE) -c usbasp -U flash:w:$<:i
+dfu: $(BUILD)/main.hex
+	sudo dfu-programmer $(DEVICE) flash $<
+	sudo dfu-programmer $(DEVICE) reset
 
-icsp_fuse:
-	sudo avrdude -v -v -p $(DEVICE) -c usbasp -U efuse:w:0xCB:m -U hfuse:w:0xD8:m -U lfuse:w:0xFF:m
+icsp: $(BUILD)/boot.hex
+	sudo avrdude -v -v \
+		-c usbasp \
+		-p $(DEVICE) \
+		-U flash:w:$<:i\
+		-U lfuse:w:0xFF:m \
+		-U hfuse:w:0xD8:m \
+		-U efuse:w:0xCB:m
 
 stack: $(BUILD)/main.elf
 	sort -k2 -n $$(find $(BUILD) -name *.su)
-
-upload: $(BUILD)/main.hex
-	sudo avrdude -v -v -p $(DEVICE) -c $(PROGRAMMER) -P $(PORT) -b $(PROGRAMMER_BAUD) -D -U flash:w:$<:i
 
 $(BUILD)/%.o: src/%.c src/*.h src/*/*.h
 	mkdir -p $(@D)
 	avr-gcc $(CFLAGS) $< -c -o $@
 
-$(BUILD)/libUSBtoSerial.a: usb/*.c usb/*.h usb/Config/*.h
+$(BUILD)/libUSBtoSerial.a: usb/makefile usb/*.c usb/*.h usb/Config/*.h
 	mkdir -p $(@D)
 	make -C usb lib
 	cp usb/libUSBtoSerial.a $@
@@ -83,6 +92,10 @@ $(BUILD)/main.elf: $(OBJS)
 	mkdir -p $(@D)
 	avr-gcc $(CFLAGS) $^ -o $@
 
+$(BUILD)/boot.hex: bootloader/makefile bootloader/*.c bootloader/*.h bootloader/Config/*.h
+	mkdir -p $(@D)
+	make -C bootloader hex
+	cp bootloader/BootloaderDFU.hex $@
 
 $(BUILD)/main.hex: $(BUILD)/main.elf
 	mkdir -p $(@D)
