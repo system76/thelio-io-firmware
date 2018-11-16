@@ -1,9 +1,12 @@
+#include <avr/interrupt.h>
+#include <avr/wdt.h>
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../config.h"
+#include "../cpu.h"
 #include "../device.h"
 #include "../macro.h"
 #include "../pin.h"
@@ -13,6 +16,7 @@
 #include "../timer.h"
 #include "../uart.h"
 #include "../../usb/USBtoSerial.h"
+#include <util/delay.h>
 
 static void timer_fast_pwm(struct Timer * timer, uint32_t frequency) {
     timer_init(timer);
@@ -41,6 +45,7 @@ struct Thelio {
     // Config
     struct Config config;
     // Variables
+    uint8_t bootloader;
     enum PowerBtnState powerbtn_state;
     uint16_t suspend_state;
     // Timers
@@ -136,6 +141,7 @@ uint8_t thelio_new(struct Thelio * thelio) {
     thelio->config = config_new();
     config_load(&thelio->config);
 
+    thelio->bootloader = 0;
     thelio->powerbtn_state = POWERBTN_OFF;
     thelio->suspend_state = 0;
 
@@ -307,6 +313,10 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
             thelio->suspend_state = 0;
 
             error = 0;
+        } else if (strncmp(command + 2, "BOOT", 4) == 0) {
+            thelio->bootloader = 1;
+
+            error = 0;
         }
     }
 
@@ -363,7 +373,7 @@ int cmd_thelio(int argc, char ** argv) {
 
     static uint64_t time;
     time = time_get();
-    for (;;) {
+    while (thelio.bootloader == 0) {
         {
             uint64_t next_time = time_get();
             uint32_t interval = (uint32_t)(next_time - time);
@@ -405,6 +415,18 @@ int cmd_thelio(int argc, char ** argv) {
     thelio_destroy(&thelio);
 
     printf("exiting thelio\n");
+
+    // Disable all interrupts
+    cli();
+
+    // Wait two seconds for the USB detachment to register on the host
+    _delay_ms(2000);
+
+    // Reset using watchdog
+    wdt_enable(WDTO_250MS);
+
+    // Wait for watchdog
+    for (;;);
 
     return 0;
 }
