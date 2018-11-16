@@ -373,7 +373,7 @@ int cmd_thelio(int argc, char ** argv) {
 
     static uint64_t time;
     time = time_get();
-    while (thelio.bootloader == 0) {
+    for (;;) {
         {
             uint64_t next_time = time_get();
             uint32_t interval = (uint32_t)(next_time - time);
@@ -386,6 +386,10 @@ int cmd_thelio(int argc, char ** argv) {
         thelio_step(&thelio, time);
 
         USBtoSerial_Task();
+
+        if (thelio.bootloader) {
+            break;
+        }
 
         int16_t result = USBtoSerial_Read();
         if (result >= 0) {
@@ -401,6 +405,8 @@ int cmd_thelio(int argc, char ** argv) {
                 usb_cmd[usb_cmd_i++] = c;
             }
         }
+
+        USBtoSerial_Task();
 
         // if (uart_can_read(stdio_uart)) {
         //     char c = uart_read(stdio_uart);
