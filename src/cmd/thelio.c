@@ -126,12 +126,11 @@ static void thelio_powerbtn_callback(struct Device * device, uint64_t time, void
 static void thelio_cpufan_callback(struct Device * device, uint64_t time, void * data) {
     struct Thelio * thelio = (struct Thelio *)data;
 
-    uint64_t interval = time - device->output_trans.time;
-    uint64_t timeout = (uint64_t)thelio->config.cpufan_timeout;
-    if (interval > timeout) {
+    uint32_t interval = (uint32_t)(time - device->command_time);
+    if (interval > thelio->config.cpufan_timeout) {
         // Use motherboard CPU fan
         pin_set(thelio->cpufanmux, 0);
-    } else {
+    } else if(device->command_time > 0) {
         // Use software fan control
         pin_set(thelio->cpufanmux, 1);
     }
@@ -200,8 +199,7 @@ uint8_t thelio_new(struct Thelio * thelio) {
             "CPUF",
             pin_PF4, pin_PB5,
             thelio->timer_1, TIMER_CHANNEL_A,
-            thelio->config.fan_duty,
-            (double)thelio->config.fan_transition
+            thelio->config.fan_duty, (double)thelio->config.fan_transition
         );
         device_set_callback(&thelio->cpufan, thelio_cpufan_callback, thelio);
         thelio->devices[device_i++] = &thelio->cpufan;
@@ -283,6 +281,7 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
                         errno = 0;
                         unsigned long duty = strtoul(command + 10, NULL, 16);
                         if (errno == 0 && duty <= 10000) {
+                            device->command_time = time;
                             if ((uint16_t)duty != device->output_trans.value) {
                                 transition_set(&device->output_trans, time, (double)duty);
                             }

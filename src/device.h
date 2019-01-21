@@ -21,7 +21,10 @@ enum InputState {
 };
 
 struct Device {
+    // Name of device
     char * name;
+    // Time of last command
+    uint64_t command_time;
     // Input pin
     struct Pin * input;
     // Debounce input pin to prevent erroneous input

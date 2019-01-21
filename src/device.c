@@ -4,6 +4,7 @@
 struct Device device_new(char * name, struct Pin * input, struct Pin * output, struct Timer * output_timer, enum TimerChannel output_channel, uint16_t output_duty, uint64_t transition_time) {
     struct Device device = {
         .name = name,
+        .command_time = 0,
         .input = input,
         .input_db = debounce_new(1000ULL),
         .input_last = 0,
