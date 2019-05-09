@@ -1,15 +1,26 @@
 DEVICE?=atmega32u4
 #DEVICE?=atmega2560
 #DEVICE?=atmega1280
+REVISION=$(shell git describe --dirty --tags)
 
 include mk/$(DEVICE).mk
 
 BUILD=build/$(DEVICE)
-CFLAGS=-Os -fstack-usage -Wall -Wl,--gc-sections -Wl,-u,vfprintf -lprintf_flt -D __DEVICE__=$(DEVICE) -mmcu=$(DEVICE)
+CFLAGS=\
+	-std=c11 \
+	-Os \
+	-fstack-usage \
+	-Wall \
+	-Wl,--gc-sections \
+	-Wl,-u,vfprintf \
+	-lprintf_flt \
+	-D __DEVICE__=$(DEVICE) \
+	-D __REVISION__=$(REVISION) \
+	-mmcu=$(DEVICE)
 
 .PHONY: all clean console dfu icsp stack
 
-all: $(BUILD)/boot.hex $(BUILD)/main.hex
+all: $(BUILD)/boot.hex $(BUILD)/main.hex $(BUILD)/metadata.json
 
 # old CDC flashing method:
 #sudo avrdude -v -v -p $(DEVICE) -c $(PROGRAMMER) -P $(PORT) -b $(PROGRAMMER_BAUD) -D -U flash:w:$<:i
@@ -100,3 +111,7 @@ $(BUILD)/boot.hex: bootloader/makefile bootloader/*.c bootloader/*.h bootloader/
 $(BUILD)/main.hex: $(BUILD)/main.elf
 	mkdir -p $(@D)
 	avr-objcopy -j .text -j .data -O ihex $< $@
+
+$(BUILD)/metadata.json:
+	mkdir -p $(@D)
+	echo "{ device: \"$(DEVICE)\", revision: \"$(REVISION)\" }" > $@

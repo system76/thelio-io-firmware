@@ -101,3 +101,18 @@ Set the suspend state of the device. The data must be a hex encoded value.
 Currently the only values supported are `0000` and `0001`.
 
 If the value is above `0001` in hex, `ERROR` will be returned.
+
+
+## Revision (Get)
+
+`IoREVISION\r`
+
+Command: `REVISION`
+Data: ``
+Return: `\r\n1.0.0\r\n\r\nOK\r\n`
+
+Get the revision of the device. This will return a string, created by the command
+`git describe --tags --dirty`. This command is 8 characters long to prevent the
+incorrect use of a set command.
+
+Errors should not occur, but must be handled in case of a firmware modification.

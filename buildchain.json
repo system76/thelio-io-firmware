@@ -1,0 +1,17 @@
+{
+    "name": "thelio-io-firmware",
+    "base": "ubuntu:16.04",
+    "prepare": [
+        ["apt-get", "update"],
+        ["apt-get", "dist-upgrade", "-y"],
+        ["apt-get", "install", "-y", "avr-libc", "build-essential"]
+    ],
+    "build": [
+        ["make", "-C", "source"]
+    ],
+    "publish": [
+        ["cp", "-v", "source/build/atmega32u4/boot.hex", "artifacts"],
+        ["cp", "-v", "source/build/atmega32u4/main.hex", "artifacts"],
+        ["cp", "-v", "source/build/atmega32u4/metadata.json", "artifacts"]
+    ]
+}
