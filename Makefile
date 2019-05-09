@@ -114,4 +114,4 @@ $(BUILD)/main.hex: $(BUILD)/main.elf
 
 $(BUILD)/metadata.json:
 	mkdir -p $(@D)
-	echo "{ device: \"$(DEVICE)\", revision: \"$(REVISION)\" }" > $@
+	echo "{ \"device\": \"$(DEVICE)\", \"revision\": \"$(REVISION)\" }" > $@
