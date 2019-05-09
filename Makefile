@@ -1,11 +1,21 @@
 DEVICE?=atmega32u4
 #DEVICE?=atmega2560
 #DEVICE?=atmega1280
+REVISION=$(shell git describe --dirty --tags)
 
 include mk/$(DEVICE).mk
 
 BUILD=build/$(DEVICE)
-CFLAGS=-Os -fstack-usage -Wall -Wl,--gc-sections -Wl,-u,vfprintf -lprintf_flt -D __DEVICE__=$(DEVICE) -mmcu=$(DEVICE)
+CFLAGS=\
+	-Os \
+	-fstack-usage \
+	-Wall \
+	-Wl,--gc-sections \
+	-Wl,-u,vfprintf \
+	-lprintf_flt \
+	-D __DEVICE__=$(DEVICE) \
+	-D __REVISION__=$(REVISION) \
+	-mmcu=$(DEVICE)
 
 .PHONY: all clean console dfu icsp stack
 

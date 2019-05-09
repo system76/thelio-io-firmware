@@ -307,6 +307,10 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
                     error = 0;
                 }
             }
+        } else if (strncmp(command + 2, "REVISION", 8) == 0) {
+            fprintf(output, "\r\n%s\r\n", xstr(__REVISION__));
+
+            error = 0;
         } else if (strncmp(command + 2, "RSET", 4) == 0) {
             thelio->powerbtn_state = POWERBTN_ON;
             thelio->suspend_state = 0;
