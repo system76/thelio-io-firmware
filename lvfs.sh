@@ -2,11 +2,23 @@
 
 set -e
 
-NAMESPACE="USB\VID_1209&PID_1776&REV_0001"
-echo "NAMESPACE: ${NAMESPACE}"
+BOOTLOADER_VID="03EB"
+BOOTLOADER_PID="2FF4"
+BOOTLOADER_REV="0000"
+BOOTLOADER_ID="USB\VID_${BOOTLOADER_VID}&PID_${BOOTLOADER_PID}&REV_${BOOTLOADER_REV}"
+echo "BOOTLOADER_ID: ${BOOTLOADER_ID}"
 
-UUID="$(appstream-util generate-guid "${NAMESPACE}")"
-echo "UUID: ${UUID}"
+BOOTLOADER_UUID="$(appstream-util generate-guid "${BOOTLOADER_ID}")"
+echo "BOOTLOADER_UUID: ${BOOTLOADER_UUID}"
+
+RUNTIME_VID="1209"
+RUNTIME_PID="1776"
+RUNTIME_REV="0001"
+RUNTIME_ID="USB\VID_${RUNTIME_VID}&PID_${RUNTIME_PID}&REV_${RUNTIME_REV}"
+echo "RUNTIME_ID: ${RUNTIME_ID}"
+
+RUNTIME_UUID="$(appstream-util generate-guid "${RUNTIME_ID}")"
+echo "RUNTIME_UUID: ${RUNTIME_UUID}"
 
 #TODO: Should --dirty be used?
 REVISION="$(git describe --tags)"
@@ -37,9 +49,9 @@ mkdir -pv "${BUILD}"
 
 make "build/atmega32u4/main.bin"
 dfu-tool convert dfu "build/atmega32u4/main.bin" "${BUILD}/firmware.dfu"
-dfu-tool set-vendor "${BUILD}/firmware.dfu" 0x1209
-dfu-tool set-product "${BUILD}/firmware.dfu" 0x1776
-dfu-tool set-release "${BUILD}/firmware.dfu" 0x0001
+dfu-tool set-vendor "${BUILD}/firmware.dfu" "0x${BOOTLOADER_VID}"
+dfu-tool set-product "${BUILD}/firmware.dfu" "0x${BOOTLOADER_PID}"
+dfu-tool set-release "${BUILD}/firmware.dfu" "0x${BOOTLOADER_REV}"
 dfu-tool dump "${BUILD}/firmware.dfu"
 
 echo "writing '${BUILD}/firmware.metainfo.xml'"
@@ -58,8 +70,10 @@ cat > "${BUILD}/firmware.metainfo.xml" <<EOF
     </p>
   </description>
   <provides>
-    <!-- ${NAMESPACE} -->
-    <firmware type="flashed">${UUID}</firmware>
+    <!-- ${BOOTLOADER_ID} -->
+    <firmware type="flashed">${BOOTLOADER_UUID}</firmware>
+    <!-- ${RUNTIME_ID} -->
+    <firmware type="flashed">${RUNTIME_UUID}</firmware>
   </provides>
   <url type="homepage">https://github.com/system76/thelio-io</url>
   <metadata_license>CC0-1.0</metadata_license>
