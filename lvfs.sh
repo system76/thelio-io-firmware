@@ -15,6 +15,14 @@ echo "REVISION: ${REVISION}"
 DATE="$(git show -s --format="%ci" "$REVISION" | cut -d " " -f 1)"
 echo "DATE: ${DATE}"
 
+if [ -z "$1" ]
+then
+    echo "$0 [description]" >&2
+    exit 1
+fi
+DESCRIPTION="$1"
+echo "DESCRIPTION: ${DESCRIPTION}"
+
 NAME="thelio-io_${REVISION}"
 echo "NAME: ${NAME}"
 
@@ -27,7 +35,12 @@ echo "BUILD: ${BUILD}"
 rm -rf "${BUILD}"
 mkdir -pv "${BUILD}"
 
-cp -v "build/atmega32u4/main.hex" "${BUILD}/firmware.hex"
+make "build/atmega32u4/main.bin"
+dfu-tool convert dfu "build/atmega32u4/main.bin" "${BUILD}/firmware.dfu"
+dfu-tool set-vendor "${BUILD}/firmware.dfu" 0x1209
+dfu-tool set-product "${BUILD}/firmware.dfu" 0x1776
+dfu-tool set-release "${BUILD}/firmware.dfu" 0x0001
+dfu-tool dump "${BUILD}/firmware.dfu"
 
 echo "writing '${BUILD}/firmware.metainfo.xml'"
 cat > "${BUILD}/firmware.metainfo.xml" <<EOF
@@ -54,10 +67,10 @@ cat > "${BUILD}/firmware.metainfo.xml" <<EOF
   <developer_name>System76</developer_name>
   <releases>
     <release urgency="high" version="${REVISION}" date="${DATE}" install_duration="15">
-      <checksum filename="firmware.hex" target="content"/>
+      <checksum filename="firmware.dfu" target="content"/>
       <url type="source">${SOURCE}</url>
       <description>
-        <p>This release enables the REVISION command</p>
+        <p>${DESCRIPTION}</p>
       </description>
     </release>
   </releases>

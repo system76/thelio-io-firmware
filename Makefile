@@ -112,6 +112,10 @@ $(BUILD)/main.hex: $(BUILD)/main.elf
 	mkdir -p $(@D)
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
+$(BUILD)/main.bin: $(BUILD)/main.hex
+	mkdir -p $(@D)
+	avr-objcopy -I ihex -O binary $< $@
+
 $(BUILD)/metadata.json:
 	mkdir -p $(@D)
 	echo "{ \"device\": \"$(DEVICE)\", \"revision\": \"$(REVISION)\" }" > $@
