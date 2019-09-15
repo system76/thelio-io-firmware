@@ -4,8 +4,7 @@ set -e
 
 BOOTLOADER_VID="03EB"
 BOOTLOADER_PID="2FF4"
-BOOTLOADER_REV="0000"
-BOOTLOADER_ID="USB\VID_${BOOTLOADER_VID}&PID_${BOOTLOADER_PID}&REV_${BOOTLOADER_REV}"
+BOOTLOADER_ID="USB\\VID_${BOOTLOADER_VID}&PID_${BOOTLOADER_PID}"
 echo "BOOTLOADER_ID: ${BOOTLOADER_ID}"
 
 BOOTLOADER_UUID="$(appstream-util generate-guid "${BOOTLOADER_ID}")"
@@ -14,7 +13,7 @@ echo "BOOTLOADER_UUID: ${BOOTLOADER_UUID}"
 RUNTIME_VID="1209"
 RUNTIME_PID="1776"
 RUNTIME_REV="0001"
-RUNTIME_ID="USB\VID_${RUNTIME_VID}&PID_${RUNTIME_PID}&REV_${RUNTIME_REV}"
+RUNTIME_ID="USB\\VID_${RUNTIME_VID}&PID_${RUNTIME_PID}&REV_${RUNTIME_REV}"
 echo "RUNTIME_ID: ${RUNTIME_ID}"
 
 RUNTIME_UUID="$(appstream-util generate-guid "${RUNTIME_ID}")"
@@ -49,9 +48,9 @@ mkdir -pv "${BUILD}"
 
 make "build/atmega32u4/main.bin"
 dfu-tool convert dfu "build/atmega32u4/main.bin" "${BUILD}/firmware.dfu"
-dfu-tool set-vendor "${BUILD}/firmware.dfu" "0x${BOOTLOADER_VID}"
-dfu-tool set-product "${BUILD}/firmware.dfu" "0x${BOOTLOADER_PID}"
-dfu-tool set-release "${BUILD}/firmware.dfu" "0x${BOOTLOADER_REV}"
+dfu-tool set-vendor "${BUILD}/firmware.dfu" "0x${RUNTIME_VID}"
+dfu-tool set-product "${BUILD}/firmware.dfu" "0x${RUNTIME_PID}"
+dfu-tool set-release "${BUILD}/firmware.dfu" "0x${RUNTIME_REV}"
 dfu-tool dump "${BUILD}/firmware.dfu"
 
 echo "writing '${BUILD}/firmware.metainfo.xml'"
@@ -91,10 +90,6 @@ cat > "${BUILD}/firmware.metainfo.xml" <<EOF
   <categories>
     <category>X-Device</category>
   </categories>
-  <requires>
-    <!-- TODO -->
-    <id compare="ge" version="1.2.9">org.freedesktop.fwupd</id>
-  </requires>
   <keywords>
     <keyword>dfu</keyword>
   </keywords>
