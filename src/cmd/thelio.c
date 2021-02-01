@@ -46,6 +46,7 @@ struct Thelio {
     struct Config config;
     // Variables
     uint8_t bootloader;
+    unsigned char motherled_off;
     enum PowerBtnState powerbtn_state;
     uint16_t suspend_state;
     // Timers
@@ -77,7 +78,7 @@ static void thelio_powerbtn_callback(struct Device * device, uint64_t time, void
             break;
         default:
             motherbtn = 1;
-            if (!pin_get(thelio->motherled)) {
+            if (pin_get(thelio->motherled) != thelio->motherled_off) {
                 powerbtn_state = POWERBTN_ON;
             } else if (thelio->suspend_state) {
                 powerbtn_state = POWERBTN_SUSPEND;
@@ -245,6 +246,9 @@ void thelio_init(struct Thelio * thelio) {
     pin_set(thelio->motherbtn, 0);
     pin_set_dir(thelio->cpufanmux, 1);
     pin_set(thelio->cpufanmux, 0);
+
+    // Get motherboard LED polarity
+    thelio->motherled_off = pin_get(thelio->motherled);
 
     // Initialize devices
     for (int i = 0; i < sizeof(thelio->devices)/sizeof(struct Device *); i++) {
