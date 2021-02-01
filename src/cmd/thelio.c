@@ -78,12 +78,12 @@ static void thelio_powerbtn_callback(struct Device * device, uint64_t time, void
             break;
         default:
             motherbtn = 1;
-            if (pin_get(thelio->motherled) != thelio->motherled_off) {
-                powerbtn_state = POWERBTN_ON;
-            } else if (thelio->suspend_state) {
+            if (thelio->suspend_state) {
                 powerbtn_state = POWERBTN_SUSPEND;
-            } else {
+            } else if (pin_get(thelio->motherled) == thelio->motherled_off) {
                 powerbtn_state = POWERBTN_OFF;
+            } else {
+                powerbtn_state = POWERBTN_ON;
             }
             break;
     }
@@ -316,7 +316,6 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
 
             error = 0;
         } else if (strncmp(command + 2, "RSET", 4) == 0) {
-            thelio->powerbtn_state = POWERBTN_ON;
             thelio->suspend_state = 0;
 
             error = 0;
