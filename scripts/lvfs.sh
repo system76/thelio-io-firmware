@@ -47,16 +47,17 @@ rm -rf "${BUILD}"
 mkdir -pv "${BUILD}"
 
 make "build/atmega32u4/main.bin"
-dfu-tool convert dfu "build/atmega32u4/main.bin" "${BUILD}/firmware.dfu"
-dfu-tool set-vendor "${BUILD}/firmware.dfu" "0x${RUNTIME_VID}"
-dfu-tool set-product "${BUILD}/firmware.dfu" "0x${RUNTIME_PID}"
-dfu-tool set-release "${BUILD}/firmware.dfu" "0x${RUNTIME_REV}"
-dfu-tool dump "${BUILD}/firmware.dfu"
+./scripts/add_dfu_header.py \
+    --bin "build/atmega32u4/main.bin" \
+    --dfu "${BUILD}/firmware.dfu" \
+    --vid "${RUNTIME_VID}" \
+    --pid "${RUNTIME_PID}" \
+    --rev "${RUNTIME_REV}"
 
 echo "writing '${BUILD}/firmware.metainfo.xml'"
 cat > "${BUILD}/firmware.metainfo.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2019 System76 <info@system76.com> -->
+<!-- Copyright 2021 System76 <info@system76.com> -->
 <component type="firmware">
   <id>com.system76.ThelioIo.firmware</id>
   <name>Thelio Io</name>
@@ -95,6 +96,7 @@ cat > "${BUILD}/firmware.metainfo.xml" <<EOF
   </keywords>
   <custom>
     <value key="LVFS::UpdateProtocol">org.usb.dfu</value>
+    <value key="LVFS::VersionFormat">triplet</value>
   </custom>
 </component>
 EOF
