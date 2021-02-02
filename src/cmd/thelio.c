@@ -247,7 +247,7 @@ void thelio_init(struct Thelio * thelio) {
     pin_set_dir(thelio->cpufanmux, 1);
     pin_set(thelio->cpufanmux, 0);
 
-    // Get motherboard LED polarity
+    // Get motherboard LED polarity (system is off at this point, except after firmware update)
     thelio->motherled_off = pin_get(thelio->motherled);
 
     // Initialize devices
@@ -317,6 +317,9 @@ void thelio_command(struct Thelio * thelio, uint64_t time, char * command, FILE 
             error = 0;
         } else if (strncmp(command + 2, "RSET", 4) == 0) {
             thelio->suspend_state = 0;
+
+            // Update motherboard LED polarity (system will be on at this point)
+            thelio->motherled_off = !pin_get(thelio->motherled);
 
             error = 0;
         } else if (strncmp(command + 2, "BOOT", 4) == 0) {
